@@ -33,8 +33,8 @@ class Crawler
 public:
 	Crawler()
 	{
-		cachePath = L"C:\\Users\\PRIYASH\\Documents\\Visual Studio 2013\\Projects\\WebCrawler\\Data\\Cache\\index.html";
-		path = "C:\\Users\\PRIYASH\\Documents\\Visual Studio 2013\\Projects\\WebCrawler\\Data\\list.txt";
+		cachePath = L"index.html";
+		path = "list.txt";
 	}
 
 	//INITIAL LIST OF URL
