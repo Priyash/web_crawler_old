@@ -1,5 +1,6 @@
 #include"HTML.h"
 
+//CHECKING WHETHER THE FILE IS HTML OR NOT
 bool HTML_PARSER::isHTML()
 {
 	string s = html_path;
@@ -15,11 +16,11 @@ void HTML_PARSER::loadData()
 {
 	try
 	{
-		if (!isHTML())throw;
+		if (!isHTML())throw ;
 		string line;
+		bool found = false;
 		while (getline(reader, line))
 		{
-			if (line == "")continue;
 			if (line[0] == '\t')
 			{
 				line = line.erase(line.find_last_not_of(" \t\f\v\n\r") + 1);
@@ -32,16 +33,12 @@ void HTML_PARSER::loadData()
 
 			}
 
-			//COMMENTS WOULD BE GET FETCHED INCLUDING WHATS INSIDE <SCRIPT> IN BETWEEN </SCRIPT>
-			if (line[0] == '<'&&line[1] == '!')
+			//REMOVING COMMENTS WHICH WOULD BE GET FETCHED INCLUDING WHATS INSIDE <SCRIPT> IN BETWEEN </SCRIPT>
+			if (line[0] == '<'&&line[1] == '!'&&line[2]=='-')
 			{
 				continue;
 			}
-			if (line.find("<script>") != string::npos)
-			{
-				continue;
-			}
-
+			
 			html_data.push_back(line);
 		}
 
@@ -53,7 +50,7 @@ void HTML_PARSER::loadData()
 	}
 }
 
-
+//USING THE REGULAR EXPRESSION TO READ IN BETWEEEN TWO TAGS
 void HTML_PARSER::findTEXT(string s)
 {
 	smatch sm;
@@ -86,13 +83,17 @@ void HTML_PARSER::parseText()
 	cleanUp();
 }
 
+//CLEANING THE UNCESSESARY SYMBOLS 
 void HTML_PARSER::cleanUp()
 {
 	for (int i = 0; i < text.size();++i)
 	{   
 		string s = text[i];
-		if (s[0]==' '||s[0]=='*'||s[0]=='&')
-		text.erase(remove(text.begin(), text.end(), s), text.end());
+		if (s.find("\\n") != string::npos || s[0]==':'||s.find("\\t") != string::npos||s.find("&nbsp") != string::npos || (s[0]==' '&&s.size()==1) || s.find("function") != string::npos || s.find("=") != string::npos || (s[0] == '#') || s[0] == '<' || s[0] == '>' || s[0] == '.' || s.find("style") != string::npos)
+		{
+			text.erase(remove(text.begin(), text.end(), s), text.end());
+			i--;
+		}
 	}
 
 	for (auto i : text)
@@ -100,6 +101,4 @@ void HTML_PARSER::cleanUp()
 		writer << i << endl;
 	}
 
-
-	int k = 0;
 }
