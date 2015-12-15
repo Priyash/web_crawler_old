@@ -11,11 +11,11 @@ namespace DB_Connect
 {
     class DB_Handler
     {
-        string connString ="Data Source=PRIYASH\\SQLEXPRESS; Initial Catalog=TEST;Integrated Security = SSPI;User ID=PRIYASH\\PRIYASH_11;Password=3324383606";
+        string connString ="Data Source=Server Address; Initial Catalog=DB NAME;Integrated Security = SSPI;User ID=Username of DB;Password=123";
         SqlConnection conn;
         List<string> words;
         string _path = "C:\\Users\\PRIYASH_11\\Desktop\\XML data\\";
-        string file = "Word.txt";
+        string file = "Data.txt";
         string path;
         public DB_Handler()
         {
