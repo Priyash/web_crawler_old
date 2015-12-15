@@ -5,8 +5,11 @@ bool HTML_PARSER::isHTML()
 {
 	string s = html_path;
 	s = s.substr(s.find_last_of(".") + 1);
-	if (s == "html" || s == "HTML")return true;
-
+	if (s == "html" || s == "HTML")
+	{
+		s = "html";
+		return true;
+	}
 	return false;
 }
 
@@ -16,7 +19,7 @@ void HTML_PARSER::loadData()
 {
 	try
 	{
-		if (!isHTML())throw ;
+		if (!isHTML())throw false ;
 		string line;
 		bool found = false;
 		while (getline(reader, line))
@@ -48,6 +51,10 @@ void HTML_PARSER::loadData()
 	{
 		cerr << e.what() << endl;
 	}
+	catch (bool v)
+	{
+		cerr << "Not an HTML FILE" << endl;
+	}
 }
 
 //USING THE REGULAR EXPRESSION TO READ IN BETWEEEN TWO TAGS
@@ -59,7 +66,6 @@ void HTML_PARSER::findTEXT(string s)
 	int index = 1;
 	while (regex_search(s, sm, e))
 	{
-
 		for (auto x : sm)
 		{
 			if (index % 2 == 0 && x.length() != 0)
@@ -89,7 +95,7 @@ void HTML_PARSER::cleanUp()
 	for (int i = 0; i < text.size();++i)
 	{   
 		string s = text[i];
-		if (s.find("\\n") != string::npos || s[0]==':'||s.find("\\t") != string::npos||s.find("&nbsp") != string::npos || (s[0]==' '&&s.size()==1) || s.find("function") != string::npos || s.find("=") != string::npos || (s[0] == '#') || s[0] == '<' || s[0] == '>' || s[0] == '.' || s.find("style") != string::npos)
+		if (s.find("\\n") != string::npos || (s[0]==':'&&s.size()==1)||s.find("\\t") != string::npos||s.find("&nbsp") != string::npos || (s[0]==' '&&s.size()==1) || s.find("function") != string::npos || s.find("=") != string::npos || (s[0] == '#') || s[0] == '<' || s[0] == '>' || s[0] == '.' || s.find("style") != string::npos)
 		{
 			text.erase(remove(text.begin(), text.end(), s), text.end());
 			i--;
@@ -100,5 +106,50 @@ void HTML_PARSER::cleanUp()
 	{
 		writer << i << endl;
 	}
+
+}
+
+//THIS MODULE IS USED TO CONVERT THE LINE INTO SET OF WORDS
+void HTML_PARSER::toWord()
+{
+	ifstream r;
+	string _path = "C:\\Users\\PRIYASH_11\\Desktop\\XML data\\";
+	string file = "out2.txt";
+	string path = _path + file;
+	r.open(path.c_str(), ios::in);
+	string line2 = "";
+	char* token;
+	
+	while (getline(r, line2))
+	{
+		char* dup = strdup(line2.c_str());
+		token = strtok(dup, " ,:&#;|?/()<>@");
+		while (token!=NULL)
+		{
+			words.push_back((string)token);
+			token = strtok(NULL, " ,:&#;|?/()<>@");
+		}
+		
+		free(dup);
+	}
+
+	ofstream w;
+	string path2 = _path + "Word.txt";
+	w.open(path2.c_str(), ios::out);
+
+	for (auto i : words)
+	{
+		w << i << endl;
+	}
+
+
+	//FREE UP RESOURCES
+	r.clear();
+	r.close();
+	file.clear();
+	_path.clear();
+	path.clear();
+	line2.clear();
+	w.close();
 
 }
