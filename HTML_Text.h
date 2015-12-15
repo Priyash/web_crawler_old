@@ -7,6 +7,7 @@
 #include<fstream>
 #include<exception>
 #include<regex>
+#include<sstream>
 
 using namespace std;
 
@@ -19,6 +20,7 @@ class HTML_PARSER
 	string html_path;
 	vector<string>html_data;
 	vector<string>text;
+	vector<string>words;
 public:
 	HTML_PARSER(string file)
 	{
@@ -42,11 +44,11 @@ public:
 	void loadData();
 	void parseText();
 	void findTEXT(string s);
+	void toWord();
 private:
 	bool isHTML();
 	void cleanUp();
 };
-
 
 
 #endif
