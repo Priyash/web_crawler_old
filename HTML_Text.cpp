@@ -122,12 +122,22 @@ void HTML_PARSER::toWord()
 	
 	while (getline(r, line2))
 	{
+		size_t n = line2.find_last_of(".");
+		if (n == line2.length() - 1)continue;
+		if (n!=string::npos)
+		{
+			line2 = line2.substr(0, n - 1);
+		}
 		char* dup = strdup(line2.c_str());
-		token = strtok(dup, " ,:&#;|?/()<>@");
+		token = strtok(dup, " ,-:&#;|?/()<>*@0123456789%\"\'\t\n\r_{}");
 		while (token!=NULL)
 		{
-			words.push_back((string)token);
-			token = strtok(NULL, " ,:&#;|?/()<>@");
+			//words.push_back((string)token);
+			if (strlen(token) > 2)
+			{
+				dict[(string)token]++;
+			}
+			token = strtok(NULL, " ,-:&#;|?/()<>*@0123456789%\"\'\t\n\r_{}");
 		}
 		
 		free(dup);
@@ -137,12 +147,10 @@ void HTML_PARSER::toWord()
 	string path2 = _path + "Word.txt";
 	w.open(path2.c_str(), ios::out);
 
-	for (auto i : words)
+	for (auto i : dict)
 	{
-		w << i << endl;
+		w << i.first<<","<<i.second<< endl;
 	}
-
-
 	//FREE UP RESOURCES
 	r.clear();
 	r.close();
