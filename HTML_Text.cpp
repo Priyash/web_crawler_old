@@ -122,8 +122,6 @@ void HTML_PARSER::toWord()
 	
 	while (getline(r, line2))
 	{
-		line2.erase(remove_if(line2.begin(), line2.end(), [](char s)->bool{return s == '.'; }));
-
 		char* dup = strdup(line2.c_str());
 		token = strtok(dup, " ,-:&#;|?/()<>*@0123456789%\"\'\t\n\r_{}[]");
 		while (token!=NULL)
@@ -131,7 +129,15 @@ void HTML_PARSER::toWord()
 			//words.push_back((string)token);
 			if (strlen(token) > 2)
 			{
-				dict[(string)token]++;
+				string t = (string)token;
+				transform(t.begin(), t.end(), t.begin(), [](unsigned char c) { return tolower(c); });
+				size_t n = t.find_last_of(".");
+				if (n != string::npos)
+				{
+					t = t.substr(0, n);
+				}
+				dict[t]++;
+				t.clear();
 			}
 			token = strtok(NULL, " ,-:&#;|?/()<>*@0123456789%\"\'\t\n\r_{}[]");
 		}
