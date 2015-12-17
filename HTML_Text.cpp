@@ -95,7 +95,7 @@ void HTML_PARSER::cleanUp()
 	for (int i = 0; i < text.size();++i)
 	{   
 		string s = text[i];
-		if (s.find("\\n") != string::npos || (s[0]==':'&&s.size()==1)||s.find("\\t") != string::npos||s.find("&nbsp") != string::npos || (s[0]==' '&&s.size()==1) || s.find("function") != string::npos || s.find("=") != string::npos || (s[0] == '#') || s[0] == '<' || s[0] == '>' || s[0] == '.' || s.find("style") != string::npos)
+		if (s.find("\\n") != string::npos || (s[0]==':'&&s.size()==1)||s.find("\\t") != string::npos||s.find("&nbsp") != string::npos || (s[0]==' '&&s.size()==1) || s.find("function") != string::npos || s.find("=") != string::npos || (s[0] == '#') || s[0] == '<' || s[0] == '>' || (s[0] == '.'&&s.length()==1) || s.find("<style ") != string::npos)
 		{
 			text.erase(remove(text.begin(), text.end(), s), text.end());
 			i--;
@@ -110,26 +110,22 @@ void HTML_PARSER::cleanUp()
 }
 
 //THIS MODULE IS USED TO CONVERT THE LINE INTO SET OF WORDS
+//THIS PART HAS TO BE WRITTTEN GLOBALLY
 void HTML_PARSER::toWord()
 {
 	ifstream r;
 	string _path = "C:\\Users\\PRIYASH_11\\Desktop\\XML data\\";
-	string file = "out2.txt";
-	string path = _path + file;
-	r.open(path.c_str(), ios::in);
+	string path2 = path + file2;
+	r.open(path2.c_str(), ios::in);
 	string line2 = "";
 	char* token;
 	
 	while (getline(r, line2))
 	{
-		size_t n = line2.find_last_of(".");
-		if (n == line2.length() - 1)continue;
-		if (n!=string::npos)
-		{
-			line2 = line2.substr(0, n - 1);
-		}
+		line2.erase(remove_if(line2.begin(), line2.end(), [](char s)->bool{return s == '.'; }));
+
 		char* dup = strdup(line2.c_str());
-		token = strtok(dup, " ,-:&#;|?/()<>*@0123456789%\"\'\t\n\r_{}");
+		token = strtok(dup, " ,-:&#;|?/()<>*@0123456789%\"\'\t\n\r_{}[]");
 		while (token!=NULL)
 		{
 			//words.push_back((string)token);
@@ -137,15 +133,15 @@ void HTML_PARSER::toWord()
 			{
 				dict[(string)token]++;
 			}
-			token = strtok(NULL, " ,-:&#;|?/()<>*@0123456789%\"\'\t\n\r_{}");
+			token = strtok(NULL, " ,-:&#;|?/()<>*@0123456789%\"\'\t\n\r_{}[]");
 		}
 		
 		free(dup);
 	}
 
 	ofstream w;
-	string path2 = _path + "Word.txt";
-	w.open(path2.c_str(), ios::out);
+	string path3 = _path + "Word.txt";
+	w.open(path3.c_str(), ios::out);
 
 	for (auto i : dict)
 	{
