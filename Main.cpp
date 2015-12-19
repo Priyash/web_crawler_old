@@ -3,6 +3,13 @@
 
 using namespace std;
 
+struct Word
+{
+	int id;
+	string word;
+	vector<string>docIDs;
+};
+
 
 int main()
 {
@@ -69,6 +76,41 @@ int main()
 	xw->dump(root);
         
         */
+        
+        /*USAGE OF THE XML DATABASE WHICH WILL CONTAIN FIELDS AS ID WORD AND DOC LIST
+        
+        
+        CSVLoader* loader = new CSVLoader("DATA.csv");
+	loader->Load();
+	vector<string>v = loader->getData();
+	vector<Word>w;
+	for (int i = 0; i < v.size()-2; i++)
+	{
+		Word word;
+		word.id = atoi(v[i].c_str());
+		word.word = v[i + 1];
+		int j = i + 2;
+		while(v[j] != "EOL")
+		{
+			word.docIDs.push_back(v[j]);
+			j++;
+		}
+		w.push_back(word);
+		i = j;
+	}
 
+
+
+	for (auto i : w)
+	{
+		cout << i.id << " " << i.word<<" ";
+		for (auto j : i.docIDs)
+		{
+			cout << j << ",";
+		}
+		cout << endl;
+		
+	}
+	*/
 	return 0;
 }
