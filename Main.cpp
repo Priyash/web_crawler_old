@@ -3,11 +3,18 @@
 
 using namespace std;
 
+struct docFreq
+{
+	int freq;
+	string docID;
+};
+ 
 struct Word
 {
 	int id;
 	string word;
-	vector<string>docIDs;
+	int freq;
+	vector<docFreq>docIDs;
 };
 
 
@@ -80,19 +87,23 @@ int main()
         /*USAGE OF THE XML DATABASE WHICH WILL CONTAIN FIELDS AS ID WORD AND DOC LIST
         
         
-        CSVLoader* loader = new CSVLoader("DATA.csv");
+       CSVLoader* loader = new CSVLoader("C:\\Users\\PRIYASH_11\\Downloads\\data\\Word.csv");
 	loader->Load();
 	vector<string>v = loader->getData();
 	vector<Word>w;
 	for (int i = 0; i < v.size()-2; i++)
 	{
 		Word word;
+		docFreq df;
 		word.id = atoi(v[i].c_str());
 		word.word = v[i + 1];
 		int j = i + 2;
 		while(v[j] != "EOL")
 		{
-			word.docIDs.push_back(v[j]);
+			string s = v[j];
+			df.freq = atoi(s.substr(0, s.find(":")).c_str());
+			df.docID = s.substr(s.find(":") + 1);
+			word.docIDs.push_back(df);
 			j++;
 		}
 		w.push_back(word);
@@ -106,7 +117,7 @@ int main()
 		cout << i.id << " " << i.word<<" ";
 		for (auto j : i.docIDs)
 		{
-			cout << j << ",";
+			cout << j.freq << " "<<j.docID<<" ";
 		}
 		cout << endl;
 		
