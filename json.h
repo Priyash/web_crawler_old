@@ -20,7 +20,7 @@ struct Word
 class Json
 {
 	string file;
-	string _path="C:\\Users\\PRIYASH_11\\Desktop\\XML_data\\";
+	string _path="XML_data\\";
 	string path;
 	string path2;
 	ifstream reader;
