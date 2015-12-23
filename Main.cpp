@@ -123,5 +123,18 @@ int main()
 		
 	}
 	*/
+	
+	
+	
+	
+	/*
+	USAGE OF JSON PARSER
+	
+	Json* json = new Json("json_data.json");
+	json->read();
+	json->addWord("Diamond", 2, 16);
+	
+	
+	*/
 	return 0;
 }
