@@ -1,173 +1,91 @@
-#include"Json.h"
+#ifndef JSON_H
+#define JSON_H
+#include<string>
+#include<iostream>
+#include<algorithm>
+#include<vector>
+#include<unordered_map>
+#include<utility>
+#include<fstream>
 
-void jsonObject::add(string key, jsonObject* obj)
+using namespace std;
+
+
+class jsonObject
 {
-	objChild.insert(pair<string, jsonObject*>(key, obj));
-}
+	jsonObject* parent;
+	unordered_multimap<string, jsonObject*>objChild;
+	unordered_multimap<string, string>sChild;
+	unordered_multimap<string, double>dChild;
+	unordered_multimap<string, bool>bChild;
+	//ARRAY OF JSON CAN CONSIST OBJECT OR BOOLEAN OR NUMBER OR STRING
+	unordered_multimap<string, vector<jsonObject*>>objArrayChild;
+	unordered_multimap<string, vector<string>>strArrayChild;
+	unordered_multimap<string, vector<double>>dArrayChild;
+	//unordered_map<string, vector<bool>>boolArrayChild;
 
-
-void jsonObject::add(string key, string value)
-{
-	sChild.insert(pair<string, string>(key, value));
-}
-
-void jsonObject::add(string key, double value)
-{
-	dChild.insert(pair<string, double>(key, value));
-}
-
-void jsonObject::add(string key, bool value)
-{
-	bChild.insert(pair<string, bool>(key, value));
-}
-
-
-void jsonObject::add(string key, vector<jsonObject*>objArrayvalue)
-{
-	objArrayChild.insert(pair<string, vector<jsonObject*>>(key, objArrayvalue));
-}
-
-void jsonObject::add(string key, vector<string>strArrayvalue)
-{
-	strArrayChild.insert(pair<string, vector<string>>(key, strArrayvalue));
-}
-
-void jsonObject::add(string key, vector<double>dArrayvalue)
-{
-	dArrayChild.insert(pair<string, vector<double>>(key, dArrayvalue));
-}
-
-
-bool Json::isDigit(string b)
-{
-	b = b.substr(0, b.find_last_of(","));
-	return b.find_first_not_of("0123456789.") == string::npos;
-}
-
-
-bool Json::isObject(char c)
-{
-	return c == '{';
-}
-
-bool Json::isBool(string b)
-{
-	b = b.substr(0, b.find_last_of(","));
-	return b == "true" || b == "false";
-}
-
-bool Json::isArray(char c)
-{
-	return c == '[';
-}
-
-bool Json::isString(char c)
-{
-	return c == '"';
-}
-
-void Json::parseData(jsonObject* node,vector<string>data,int index)
-{
-	if (node == NULL)return;
-	string line = data[index];
-	
-	string a = line.substr(line.find_first_of("\"") + 1, line.find(":") - line.find_first_of("\"") -2 );
-	string b = line.substr(line.find(":") + 1, line.find_last_of("\"") - line.find(":") -1);
-	if (line == "}"||line=="},")
+public:
+	jsonObject(jsonObject* node)
 	{
-		index++;
-		if (Array)
-		{
-			arrayOBJ.push_back(node);
-			//node->getParent()->add(k, arrayOBJ);
-			parseData(node->getParent(), data, index);
-		}
-		else
-		{
-			if (node->getParent() != NULL)
-			{
-				parseData(node->getParent(), data, index);
-			}
-		}
+		parent = node;
+	}
+	~jsonObject()
+	{
+
 	}
 
-	if (line == "]")
+	void add(string, jsonObject*);
+	void add(string, string);
+	void add(string, double);
+	void add(string, bool);
+	void add(string, vector<jsonObject*>);
+	void add(string, vector<string>);
+	void add(string, vector<double>);
+	//void add(string, vector<bool>);
+	jsonObject* getParent(){ return parent; }
+
+	
+    
+};
+
+
+
+
+class Json
+{
+	jsonObject* root;
+	string filePath;
+	string file;
+	string path;
+	ifstream jsonReader;
+	vector<string>data;
+	bool Array;
+	vector<jsonObject*>arrayOBJ;
+	string k;
+public:
+	Json(string file)
 	{
-		node->add(k, arrayOBJ);
+		filePath = "C:\\Users\\PRIYASH\\Documents\\Visual Studio 2013\\Projects\\JsonParser\\Data\\";
+		path = filePath + file;
+		jsonReader.open(path.c_str(), ios::in);
+		root = new jsonObject(nullptr);
 		Array = false;
-		k = "";
-		arrayOBJ.clear();
-		index++;
-		parseData(node, data, index);
 	}
 
-	if (isString(b[0]))
-	{
-		string str = b.substr(1, b.length() - 1);
-		cout << a << " " << str << endl;
-		node->add(a, str);
-		index++;
-		parseData(node, data, index);
-	}
-	else if (isDigit(b))
-	{
-		b = b.substr(0, b.find_last_of(","));
-		double d = atof(b.c_str());
-		cout << a << " " << d << endl;
-		node->add(a, d);
-		index++;
-		parseData(node, data, index);
-	}
-	else if (isBool(b))
-	{
-		b = b.substr(0, b.find_last_of(","));
-		bool bl = (bool)b.c_str();
-		cout << a << " " << bl << endl;
-		node->add(a, bl);
-		parseData(node, data, index++);
-	}
-	else if (isObject(b[0]))
-	{
-		index++;
-		if (!Array)
-		{
-			jsonObject* j = new jsonObject(node);
-			node->add(a, j);
-			parseData(j, data, index);
-		}
-		else
-		{
-			jsonObject* j = new jsonObject(node);
-			parseData(j, data, index);
-		}
-	}
-	else if (isArray(b[0]))
-	{
-		index++;
-		Array = true;
-		k = a;
-		parseData(node, data, index);
-	}
-	
-}
+	void readJSON();
 
+	~Json(){}
 
+private:
+	bool isDigit(string b);
+	bool isBool(string );
+	bool isObject(char c);
+	bool isArray(char);
+	bool isString(char c);
 
-void Json::readJSON()
-{
-	string line;
-	int startSecondBracket = 0;
-	int endSecondBracket = 0;
-	while (getline(jsonReader, line))
-	{
-		line.erase(remove(line.begin(), line.end(), '\t'), line.end());
-		line.erase(remove(line.begin(), line.end(), ' '), line.end());
-		data.push_back(line);
-	}
+	void parseData(jsonObject* node,vector<string>data,int index);
 
-	parseData(root, data, 1);
-
-}
+};
 
 
 
@@ -175,3 +93,17 @@ void Json::readJSON()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+#endif
