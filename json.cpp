@@ -1,199 +1,177 @@
 #include"Json.h"
 
-
-bool Json::isExist()
+void jsonObject::add(string key, jsonObject* obj)
 {
-	if (reader.good())
-	{
-		return true;
-	}
-	reader.close();
-	return false;
+	objChild.insert(pair<string, jsonObject*>(key, obj));
 }
 
-void Json::read()
+
+void jsonObject::add(string key, string value)
 {
-	string line;
-	string rootWord = "";
-	bool found = false;
-	Word w;	
-	
-	string prev = "";
-	while (getline(reader, line))
-	{
-		if (line == "")continue;
-		line = line.erase(0, line.find_first_not_of(' '));
-		line = line.erase(0, line.find_first_not_of('\t'));
-		if (line == "]")
-		{
-			found = false;
-			continue;
-		}
-		if (line == "{")
-		{
-			found = true;
-			continue;
-		}
-		else if ((line == "},"||line=="}")&&found)
-		{
-			found = false;
-			json_data.push_back(w);
-			w.freq.clear();
-			w.docList.clear();
-			continue;
-		}
-
-
-		size_t n = line.find(":");
-		if (n != string::npos)
-		{
-			if (rootWord == "")
-			{
-				string s = line.substr(n + 1);
-				if (s[0] == ' ')
-				{
-					s = s.substr(1);
-				}
-
-				if (s == "[")
-				{
-					rootWord = line.substr(1, n - 2);
-
-				}
-			}
-			else
-			{
-				
-				if (found)
-				{
-
-					int index = 0;
-					if (prev == "Freq"||prev=="docList")
-					{
-						prev = "";
-					}
-					
-					char* d = strdup(line.c_str());
-					char* t = strtok(d, " \t:\"[],");
-					while (t != NULL)
-					{
-						string s = (string)t;
-						if (prev == "id")
-						{
-							w.id = atoi(t);
-						}
-						else if (prev == "Word")
-						{
-							w.word = (string)t;
-						}
-						else if (prev == "Freq")
-						{
-							w.freq.push_back(atoi(t));
-							prev = "Freq";
-							t = strtok(NULL, " \t:\"[],");
-							continue;
-						}
-						else if (prev == "docList")
-						{
-							w.docList.push_back(atoi(t));
-							prev = "docList";
-							t = strtok(NULL, " \t:\"[],");
-							continue;
-						}
-
-						prev = s;
-						t = strtok(NULL, " \t:\"[],");
-					}
-				}
-			}
-		}
-	}
+	sChild.insert(pair<string, string>(key, value));
 }
 
-void Json::write(vector<Word>w)
+void jsonObject::add(string key, double value)
 {
-	writer.open(path2.c_str(), ios::out);
-	string startTag = "{";
-	string endTag = "}";
-	string root = "\"Words\": [";
-	string blockStartTag = "{";
-	string blockEndTag = "}";
-	string arrayEndTag = "]";
+	dChild.insert(pair<string, double>(key, value));
+}
 
-	writer << startTag << endl;
-	writer <<"\t"<< root << endl;
+void jsonObject::add(string key, bool value)
+{
+	bChild.insert(pair<string, bool>(key, value));
+}
+
+
+void jsonObject::add(string key, vector<jsonObject*>objArrayvalue)
+{
+	objArrayChild.insert(pair<string, vector<jsonObject*>>(key, objArrayvalue));
+}
+
+void jsonObject::add(string key, vector<string>strArrayvalue)
+{
+	strArrayChild.insert(pair<string, vector<string>>(key, strArrayvalue));
+}
+
+void jsonObject::add(string key, vector<double>dArrayvalue)
+{
+	dArrayChild.insert(pair<string, vector<double>>(key, dArrayvalue));
+}
+
+
+bool Json::isDigit(string b)
+{
+	b = b.substr(0, b.find_last_of(","));
+	return b.find_first_not_of("0123456789.") == string::npos;
+}
+
+
+bool Json::isObject(char c)
+{
+	return c == '{';
+}
+
+bool Json::isBool(string b)
+{
+	b = b.substr(0, b.find_last_of(","));
+	return b == "true" || b == "false";
+}
+
+bool Json::isArray(char c)
+{
+	return c == '[';
+}
+
+bool Json::isString(char c)
+{
+	return c == '"';
+}
+
+void Json::parseData(jsonObject* node,vector<string>data,int index)
+{
+	if (node == NULL)return;
+	string line = data[index];
 	
-	for (int i = 0; i < w.size();i++)
+	string a = line.substr(line.find_first_of("\"") + 1, line.find(":") - line.find_first_of("\"") -2 );
+	string b = line.substr(line.find(":") + 1, line.find_last_of("\"") - line.find(":") -1);
+	if (line == "}"||line=="},")
 	{
-		writer <<"\t\t"<< blockStartTag << endl;
-		writer << "\t\t\t\"id\": " << w[i].id <<","<< endl;
-		writer << "\t\t\t\"Word\": " <<"\""+w[i].word +"\""<< "," << endl;
-		writer << "\t\t\t\"Freq\": [";
-		int n1 = w[i].freq.size();
-		for (int j = 0; j < n1 ;j++)
+		index++;
+		if (Array)
 		{
-			if (j == (n1 - 1))
-			{
-				writer << w[i].freq[j];
-			}
-			else
-			{
-				writer << w[i].freq[j] << ",";
-			}
-		}
-
-		writer << "]," << endl;
-
-		writer << "\t\t\t\"docList\": [";
-		int n2 = w[i].docList.size();
-		for (int j = 0; j <n2;j++)
-		{
-			if (j == (n2 - 1))
-			{
-				writer << w[i].docList[j];
-			}
-			else
-			{
-				writer << w[i].docList[j] << ",";
-			}
-		}
-
-		writer << "]" << endl;
-		
-		if (i == (w.size() - 1))
-		{
-			writer <<"\t\t"<< blockEndTag<< endl;
+			arrayOBJ.push_back(node);
+			//node->getParent()->add(k, arrayOBJ);
+			parseData(node->getParent(), data, index);
 		}
 		else
 		{
-			writer << "\t\t" << blockEndTag << "," << endl;
+			if (node->getParent() != NULL)
+			{
+				parseData(node->getParent(), data, index);
+			}
 		}
 	}
 
-	writer <<"\t"<< arrayEndTag << endl;
-	writer << endTag << endl;
-	writer.close();
+	if (line == "]")
+	{
+		node->add(k, arrayOBJ);
+		Array = false;
+		k = "";
+		arrayOBJ.clear();
+		index++;
+		parseData(node, data, index);
+	}
 
+	if (isString(b[0]))
+	{
+		string str = b.substr(1, b.length() - 1);
+		cout << a << " " << str << endl;
+		node->add(a, str);
+		index++;
+		parseData(node, data, index);
+	}
+	else if (isDigit(b))
+	{
+		b = b.substr(0, b.find_last_of(","));
+		double d = atof(b.c_str());
+		cout << a << " " << d << endl;
+		node->add(a, d);
+		index++;
+		parseData(node, data, index);
+	}
+	else if (isBool(b))
+	{
+		b = b.substr(0, b.find_last_of(","));
+		bool bl = (bool)b.c_str();
+		cout << a << " " << bl << endl;
+		node->add(a, bl);
+		parseData(node, data, index++);
+	}
+	else if (isObject(b[0]))
+	{
+		index++;
+		if (!Array)
+		{
+			jsonObject* j = new jsonObject(node);
+			node->add(a, j);
+			parseData(j, data, index);
+		}
+		else
+		{
+			jsonObject* j = new jsonObject(node);
+			parseData(j, data, index);
+		}
+	}
+	else if (isArray(b[0]))
+	{
+		index++;
+		Array = true;
+		k = a;
+		parseData(node, data, index);
+	}
+	
 }
 
 
-void Json::addWord(string w, int freq, int docID)
+
+void Json::readJSON()
 {
-	auto itr = find_if(json_data.begin(), json_data.end(), [w](Word w1)->bool{return w == w1.word; });
-	if (itr != json_data.end())
+	string line;
+	int startSecondBracket = 0;
+	int endSecondBracket = 0;
+	while (getline(jsonReader, line))
 	{
-		(*itr).freq.push_back(freq);
-		(*itr).docList.push_back(docID);
-		write(json_data);
+		line.erase(remove(line.begin(), line.end(), '\t'), line.end());
+		line.erase(remove(line.begin(), line.end(), ' '), line.end());
+		data.push_back(line);
 	}
-	else
-	{
-		Word t;
-		t.word = w;
-		t.id = json_data[json_data.size() - 1].id + 1;
-		t.freq.push_back(freq);
-		t.docList.push_back(docID);
-		json_data.push_back(t);
-		write(json_data);
-	}
+
+	parseData(root, data, 1);
+
 }
+
+
+
+
+
+
+
