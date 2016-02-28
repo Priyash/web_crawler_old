@@ -44,7 +44,6 @@ bool Json::isDigit(string b)
 	return b.find_first_not_of("0123456789.") == string::npos;
 }
 
-
 bool Json::isObject(char c)
 {
 	return c == '{';
@@ -66,6 +65,27 @@ bool Json::isString(char c)
 	return c == '"';
 }
 
+void Json::parseArray(string line)
+{
+	char* token = strdup(line.c_str());
+	char* str = strtok(token, "[,]");
+	while (str != NULL)
+	{
+		cout << str << endl;
+		double n = atof(str);
+		if (n != 0)
+		{
+			nData.push_back(n);
+		}
+		else
+		{
+			stringData.push_back(str);
+		}
+		str = strtok(NULL, "[,]");
+	}
+}
+
+
 void Json::parseData(jsonObject* node,vector<string>data,int index)
 {
 	if (node == NULL)return;
@@ -79,7 +99,6 @@ void Json::parseData(jsonObject* node,vector<string>data,int index)
 		if (Array)
 		{
 			arrayOBJ.push_back(node);
-			//node->getParent()->add(k, arrayOBJ);
 			parseData(node->getParent(), data, index);
 		}
 		else
@@ -91,7 +110,7 @@ void Json::parseData(jsonObject* node,vector<string>data,int index)
 		}
 	}
 
-	if (line == "]")
+	if (line=="]"||line=="],")
 	{
 		node->add(k, arrayOBJ);
 		Array = false;
@@ -116,6 +135,23 @@ void Json::parseData(jsonObject* node,vector<string>data,int index)
 		cout << a << " " << d << endl;
 		node->add(a, d);
 		index++;
+		parseData(node, data, index);
+	}
+	else if (b.length() > 1&&b[0]=='[')
+	{
+		parseArray(b);
+		index++;
+		
+		if (!nData.empty())
+		{
+			node->add(a, nData);
+			nData.clear();
+		}
+		if (!stringData.empty())
+		{
+			node->add(a, stringData);
+			stringData.clear();
+		}
 		parseData(node, data, index);
 	}
 	else if (isBool(b))
@@ -148,7 +184,6 @@ void Json::parseData(jsonObject* node,vector<string>data,int index)
 		k = a;
 		parseData(node, data, index);
 	}
-	
 }
 
 
@@ -166,12 +201,9 @@ void Json::readJSON()
 	}
 
 	parseData(root, data, 1);
+	int k = 0;
 
 }
-
-
-
-
 
 
 
