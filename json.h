@@ -62,6 +62,8 @@ class Json
 	bool Array;
 	vector<jsonObject*>arrayOBJ;
 	string k;
+	vector<double>nData;
+	vector<string>stringData;
 public:
 	Json(string file)
 	{
@@ -82,28 +84,10 @@ private:
 	bool isObject(char c);
 	bool isArray(char);
 	bool isString(char c);
-
+	void parseArray(string b);
 	void parseData(jsonObject* node,vector<string>data,int index);
 
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #endif
