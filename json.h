@@ -44,8 +44,8 @@ public:
 	//void add(string, vector<bool>);
 	jsonObject* getParent(){ return parent; }
 
-	
-    
+
+
 };
 
 
@@ -67,25 +67,44 @@ class Json
 public:
 	Json(string file)
 	{
-		filePath = "C:\\Users\\PRIYASH\\Documents\\Visual Studio 2013\\Projects\\JsonParser\\Data\\";
-		path = filePath + file;
-		jsonReader.open(path.c_str(), ios::in);
-		root = new jsonObject(nullptr);
-		Array = false;
+		this->file = file;
+		if (checkJson())
+		{
+			filePath = "C:\\Users\\PRIYASH_11\\Documents\\Visual Studio 2013\\Projects\\jsonParser\\Data\\";
+			path = filePath + file;
+			jsonReader.open(path.c_str(), ios::in);
+			root = new jsonObject(nullptr);
+			Array = false;
+		}
 	}
 
 	void readJSON();
 
-	~Json(){}
+	~Json()
+	{
+		nData.clear();
+		Array = false;
+		k = "";
+		stringData.clear();
+		jsonReader.clear();
+		jsonReader.close();
+		file.clear();
+		filePath.clear();
+		path.clear();
+		root = nullptr;
+	}
 
 private:
+
+	bool checkJson();
+
 	bool isDigit(string b);
-	bool isBool(string );
+	bool isBool(string);
 	bool isObject(char c);
 	bool isArray(char);
 	bool isString(char c);
 	void parseArray(string b);
-	void parseData(jsonObject* node,vector<string>data,int index);
+	void parseData(jsonObject* node, vector<string>data, int index);
 
 };
 
