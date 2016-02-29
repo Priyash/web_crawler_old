@@ -68,7 +68,7 @@ bool Json::isString(char c)
 void Json::parseArray(string line)
 {
 	char* token = strdup(line.c_str());
-	char* str = strtok(token, "[,]");
+	char* str = strtok(token, "[]\"");
 	while (str != NULL)
 	{
 		cout << str << endl;
@@ -81,19 +81,19 @@ void Json::parseArray(string line)
 		{
 			stringData.push_back(str);
 		}
-		str = strtok(NULL, "[,]");
+		str = strtok(NULL, "[]\"");
 	}
 }
 
 
-void Json::parseData(jsonObject* node,vector<string>data,int index)
+void Json::parseData(jsonObject* node, vector<string>data, int index)
 {
 	if (node == NULL)return;
 	string line = data[index];
-	
-	string a = line.substr(line.find_first_of("\"") + 1, line.find(":") - line.find_first_of("\"") -2 );
-	string b = line.substr(line.find(":") + 1, line.find_last_of("\"") - line.find(":") -1);
-	if (line == "}"||line=="},")
+
+	string a = line.substr(line.find_first_of("\"") + 1, line.find(":") - line.find_first_of("\"") - 2);
+	string b = line.substr(line.find(":") + 1, line.find_last_of("\"") - line.find(":") - 1);
+	if (line == "}" || line == "},")
 	{
 		index++;
 		if (Array)
@@ -110,7 +110,7 @@ void Json::parseData(jsonObject* node,vector<string>data,int index)
 		}
 	}
 
-	if (line=="]"||line=="],")
+	if (line == "]" || line == "],")
 	{
 		node->add(k, arrayOBJ);
 		Array = false;
@@ -137,11 +137,11 @@ void Json::parseData(jsonObject* node,vector<string>data,int index)
 		index++;
 		parseData(node, data, index);
 	}
-	else if (b.length() > 1&&b[0]=='[')
+	else if (b.length() > 1 && b[0] == '[')
 	{
 		parseArray(b);
 		index++;
-		
+
 		if (!nData.empty())
 		{
 			node->add(a, nData);
@@ -196,7 +196,8 @@ void Json::readJSON()
 	while (getline(jsonReader, line))
 	{
 		line.erase(remove(line.begin(), line.end(), '\t'), line.end());
-		line.erase(remove(line.begin(), line.end(), ' '), line.end());
+		//line.erase(remove(line.begin(), line.end(), ' '), line.end());
+		line.erase(0, line.find_first_not_of(' '));
 		data.push_back(line);
 	}
 
