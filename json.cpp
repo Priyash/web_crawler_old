@@ -37,6 +37,11 @@ void jsonObject::add(string key, vector<double>dArrayvalue)
 	dArrayChild.insert(pair<string, vector<double>>(key, dArrayvalue));
 }
 
+bool Json::checkJson()
+{
+	return (file.substr(file.find_last_of(".") + 1) == "json");
+}
+
 
 bool Json::isDigit(string b)
 {
@@ -191,8 +196,6 @@ void Json::parseData(jsonObject* node, vector<string>data, int index)
 void Json::readJSON()
 {
 	string line;
-	int startSecondBracket = 0;
-	int endSecondBracket = 0;
 	while (getline(jsonReader, line))
 	{
 		line.erase(remove(line.begin(), line.end(), '\t'), line.end());
